@@ -1,0 +1,11 @@
+faststream
+apscheduler
+pydantic-settings
+pydantic
+loguru
+fastapi
+uvicorn
+redis
+aio_pika
+pika
+colorama
