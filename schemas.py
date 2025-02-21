@@ -1,4 +1,3 @@
-
 from datetime import timedelta, datetime
 from enum import StrEnum
 from typing import Any, Annotated, Union, Literal
@@ -9,24 +8,24 @@ from pydantic import BaseModel, ConfigDict, Field
 
 class BgTaskBase(BaseModel):
     model_config = ConfigDict(arbitrary_types_allowed=True)
-    task_id: str = '1'
-    source: str = 'api'
-    load_type: str = 'import'
+    task_id: str = "1"
+    source: str = "api"
+    load_type: str = "import"
     start_date: datetime = datetime.now()
     end_date: datetime = datetime.now()
 
 
 class BgTasks(BaseModel):
-    names: list = ['mss', 'kvs']
+    names: list = ["mss", "kvs"]
 
 
 class BgTask(BaseModel):
-    name: str = 'mss'
+    name: str = "mss"
 
 
 class Cron(BaseModel):
     model_config = ConfigDict(arbitrary_types_allowed=True)
-    trigger_type: Literal['cron']
+    trigger_type: Literal["cron"]
     year: int = None
     month: int = None
     day: int = None
@@ -43,7 +42,7 @@ class Cron(BaseModel):
 
 class Interval(BaseModel):
     model_config = ConfigDict(arbitrary_types_allowed=True)
-    trigger_type: Literal['interval']
+    trigger_type: Literal["interval"]
     weeks: int = 0
     days: int = 0
     hours: int = 0
@@ -57,13 +56,15 @@ class Interval(BaseModel):
 
 class BgJob(BaseModel):
     model_config = ConfigDict(arbitrary_types_allowed=True)
-    id: str = '1'
-    name: str = 'mss'
+    id: str = "1"
+    name: str = "mss"
     trigger: Annotated[
         Union[
             Cron,
             Interval,
-        ], Field(..., discriminator='trigger_type')]  # CronTrigger | IntervalTrigger = IntervalTrigger(seconds=5)
+        ],
+        Field(..., discriminator="trigger_type"),
+    ]  # CronTrigger | IntervalTrigger = IntervalTrigger(seconds=5)
     tasks: BgTasks
 
 

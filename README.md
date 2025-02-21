@@ -1,2 +1,1 @@
 # fastapi_faststream_apscheduler_logger
-# fastapi_faststream_apscheduler_logger

@@ -12,5 +12,4 @@ app = FastStream(broker)
 async def bg_app():
     broker.include_router(router_task)
 
-
     await app.run()

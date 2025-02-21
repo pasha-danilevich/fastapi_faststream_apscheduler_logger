@@ -11,29 +11,22 @@ from bg.config import broker
 router = RabbitRouter()
 
 
-@router.publisher('sender')
+@router.publisher("sender")
 @router.subscriber("pinger")
-async def ping(
-        # task
-        service: Annotated[BgTasks, Depends(BgWorker().pinger)]
-):
-    # logger.debug(task)
-    logger.debug('bg/router/bg_router: def ping')
+async def ping(service: Annotated[BgTasks, Depends(BgWorker().pinger)]):
+    logger.debug(f"pub: sender, sub: pinger, service:{service}")
     return service
 
 
-@router.publisher('worker')
+@router.publisher("worker")
 @router.subscriber("sender")
-async def send(
-        tasks: Annotated[BgTasks, Depends(BgWorker().sender)]
-):
+async def send(tasks: Annotated[BgTasks, Depends(BgWorker().sender)]):
     for task in tasks.names:
-        logger.debug(task)
-        await broker.publish(queue='worker', message=task)
+        logger.debug(f"pub: worker, sub: sender, task:{task}")
+        await broker.publish(queue="worker", message=task)
 
 
 @router.subscriber("worker")
-async def send(
-        task: str
-):
+async def send(task: str):
+    logger.debug(f"sub: worker, task:{task}")
     return await BgWorker().worker(task=task)

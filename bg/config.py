@@ -27,7 +27,7 @@ def broker_session(func):
     @functools.wraps(func)
     async def wrapper(*args, **kwargs):
         async with broker as br:
-            logger.debug(f'Функция {func.__name__} стала сессией брокера ')
+            logger.debug(f"Функция {func.__name__} стала сессией брокера ")
             return await func(br, *args, **kwargs)
 
     return wrapper

@@ -1,39 +1,56 @@
 import os
+from functools import lru_cache
+from pathlib import Path
 from typing import Literal
 
-from pydantic import BaseModel
-from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic_settings import SettingsConfigDict, BaseSettings
+
+BASE_PATH = Path(__file__).parent
 
 
+class Base(BaseSettings):
+    model_config = SettingsConfigDict(
+        env_file=os.path.join(BASE_PATH, ".env"),
+        env_file_encoding="utf-8",
+        # env_ignore_empty=True,
+        extra="ignore",
+    )
 
 
-
-class Settings(BaseSettings):
+class Redis(Base):
     REDIS_HOST: str
     REDIS_PORT: int
     REDIS_STORE_DB_INDEX: int
     REDIS_PASSWORD: str
 
-    RABBITMQ_HOST: str = "localhost"
-    RABBITMQ_USER: str = "motodokt"
-    RABBITMQ_PASS: str = "motodokt"
-    RABBITMQ_PORT: int = 5672
 
-    LOG_MODE: Literal["DEV", "PROD"] = "DEV"
+class RabbitMQ(Base):
+    RABBITMQ_HOST: str
+    RABBITMQ_USER: str
+    RABBITMQ_PASS: str
+    RABBITMQ_PORT: int
+
+
+class Log(Base):
 
     LOG_LEVEL: str = "INFO"
 
-    LOG_INCLUDE_PACKAGES: list[str] = [] # если пустой, то все пакеты логгируются
-    LOG_INCLUDE_MODULES: list[str] = []
+    LOG_MODE: Literal["DEV", "PROD"] = "DEV"
 
-    LOG_EXCLUDE_PACKAGES: list[str] = []
-    LOG_EXCLUDE_MODULES: list[str] = []
+    LOG_INCLUDE_PACKAGES: list[str]  # если пустой, то все пакеты логгируются
+    LOG_INCLUDE_MODULES: list[str]
 
-    model_config = SettingsConfigDict(
-        env_file=os.path.join(os.path.dirname(os.path.abspath(__file__)), ".env")
-    )
+    LOG_EXCLUDE_PACKAGES: list[str]
+    LOG_EXCLUDE_MODULES: list[str]
 
 
+class Settings(RabbitMQ, Redis, Log):
+    pass
 
 
-settings = Settings()
+@lru_cache()
+def get_settings():
+    return Settings()
+
+
+settings: Settings = get_settings()

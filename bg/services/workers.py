@@ -5,7 +5,7 @@ from schemas import BgTask, BgTasks
 class BgWorker:
 
     def __init__(self):
-            pass
+        pass
 
     @staticmethod
     async def pinger(tasks: BgTasks):
@@ -17,6 +17,6 @@ class BgWorker:
         logger.debug("Получены таски")
         return tasks
 
-    async def worker(self, task):
-        logger.debug("Выполнена таска: ", task, sep=": ")
-
+    @staticmethod
+    async def worker(task):
+        logger.debug(f"Выполнена таска: {task}")

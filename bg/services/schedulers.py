@@ -26,16 +26,20 @@ class Scheduler:
 
     def scheduler_add_job(self, job: BgJob) -> BgJobResponse:
         logger.debug("Запуск работы")
-        trigger_dict = job.trigger.model_dump(exclude_none=True, exclude_unset=True, exclude={'trigger_type'})
+        trigger_dict = job.trigger.model_dump(
+            exclude_none=True, exclude_unset=True, exclude={"trigger_type"}
+        )
         self.scheduler.add_job(
             id=job.id,
             kwargs=job.tasks.model_dump(),
             name=job.name,
             func=Scheduler.export_tasks,
-            trigger=IntervalTrigger(**trigger_dict)
-            if job.trigger.trigger_type == 'interval'
-            else CronTrigger(**trigger_dict),
-            replace_existing=True
+            trigger=(
+                IntervalTrigger(**trigger_dict)
+                if job.trigger.trigger_type == "interval"
+                else CronTrigger(**trigger_dict)
+            ),
+            replace_existing=True,
         )
         logger.debug(f"Добавлено задание, {job.name}")
         return self.scheduler_get_job_by_id(job_id=job.id)
@@ -45,16 +49,18 @@ class Scheduler:
         if not job:
             return None
         self.scheduler.remove_job(job_id=job_id)
-        return {'job_id': job.id, 'deleted': True}
+        return {"job_id": job.id, "deleted": True}
 
     def scheduler_get_jobs(self) -> list[BgJobResponse]:
         jobs = self.scheduler.get_jobs(pending=True)
         job_list = []
         for job in jobs:
-            bg_job_response = BgJobResponse(id=job.id,
-                                            name=job.name,
-                                            trigger=str(job.trigger),
-                                            next_run_time=str(job.next_run_time))
+            bg_job_response = BgJobResponse(
+                id=job.id,
+                name=job.name,
+                trigger=str(job.trigger),
+                next_run_time=str(job.next_run_time),
+            )
             job_list.append(bg_job_response)
 
         return job_list
@@ -68,12 +74,14 @@ class Scheduler:
     def scheduler_get_job_by_id(self, job_id) -> BgJobResponse | dict:
         try:
             job = self.scheduler.get_job(job_id=job_id)
-            return BgJobResponse(id=job.id,
-                                 name=job.name,
-                                 trigger=str(job.trigger),
-                                 next_run_time=str(job.next_run_time))
+            return BgJobResponse(
+                id=job.id,
+                name=job.name,
+                trigger=str(job.trigger),
+                next_run_time=str(job.next_run_time),
+            )
         except:
-            return {'job_id': job_id, 'not found': True}
+            return {"job_id": job_id, "not found": True}
 
     @staticmethod
     @broker_session
@@ -94,4 +102,6 @@ class Scheduler:
         finally:
             scheduler.scheduler_stop()
             logger.debug("Планировщик остановлен")
+
+
 print
