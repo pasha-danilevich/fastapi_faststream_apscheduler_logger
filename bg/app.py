@@ -10,6 +10,6 @@ app = FastStream(broker)
 
 
 async def bg_app():
+    logger.info("Starting background task")
     broker.include_router(router_task)
-
     await app.run()

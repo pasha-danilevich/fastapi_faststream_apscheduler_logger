@@ -16,6 +16,7 @@ router = RabbitRouter()
 async def ping(service: Annotated[BgTasks, Depends(BgWorker().pinger)]):
     logger.debug(f"pub: sender, sub: pinger, service:{service}")
     return service
+# воркер "pinger" слушает этот эндпоинт, а потом отправляет в "sender"
 
 
 @router.publisher("worker")
@@ -26,6 +27,7 @@ async def send(tasks: Annotated[BgTasks, Depends(BgWorker().sender)]):
         await broker.publish(queue="worker", message=task)
 
 
+# subscriber - значит слушает, смотрит
 @router.subscriber("worker")
 async def send(task: str):
     logger.debug(f"sub: worker, task:{task}")
