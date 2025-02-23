@@ -1,13 +1,14 @@
 import asyncio
 from faststream import FastStream
 from bg.config import broker
-from logger_config import logger
+from logger import logger
 from .routers.bg_router import router as router_task
 
 
 # Инициализация брокера и FastStream
 app = FastStream(broker)
-
+def some_bg():
+    logger.info('Starting some task')
 
 async def bg_app():
     logger.info("Starting background task")

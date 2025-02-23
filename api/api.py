@@ -5,9 +5,13 @@ from typing import Annotated, Union
 import uvicorn
 from fastapi import FastAPI, Depends
 from bg.services.schedulers import Scheduler, BgJobResponse
-from logger_config import logger
+from logger import logger
 
 app = FastAPI(lifespan=Scheduler.scheduler_lifespan)
+
+
+def some_api():
+    logger.info('start some_api')
 
 
 @app.post("/add_job")

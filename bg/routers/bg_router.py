@@ -3,12 +3,15 @@ from typing import Annotated
 from faststream.rabbit import RabbitRouter
 from faststream import Depends
 
-from logger_config import logger
+from logger import logger
 from schemas import BgTask, BgTasks
 from bg.services.workers import BgWorker
 from bg.config import broker
 
 router = RabbitRouter()
+
+def some_routers():
+    logger.warning('start some_routers')
 
 
 @router.publisher("sender")

@@ -8,9 +8,11 @@ from apscheduler.triggers.interval import IntervalTrigger
 from faststream.rabbit import RabbitBroker
 
 from bg.config import scheduler, broker_session
-from logger_config import logger
+from logger import logger
 from schemas import BgJob, BgJobResponse, BgTasks
 
+def some_service(x, y):
+    logger.warning(f'start some_service')
 
 class Scheduler:
 
@@ -102,6 +104,3 @@ class Scheduler:
         finally:
             scheduler.scheduler_stop()
             logger.debug("Планировщик остановлен")
-
-
-print

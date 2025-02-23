@@ -5,7 +5,7 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from faststream.rabbit import RabbitBroker
 
 from settings import settings
-from logger_config import logger
+from logger import logger
 
 
 scheduler = AsyncIOScheduler(

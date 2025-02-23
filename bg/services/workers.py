@@ -1,5 +1,9 @@
-from logger_config import logger
+from logger import logger
 from schemas import BgTask, BgTasks
+
+
+def some_w(w = None):
+    logger.warning('start w')
 
 
 class BgWorker:
