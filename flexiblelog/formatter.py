@@ -1,13 +1,13 @@
 import logging
 from colorama import Fore, Style, init
 
-from logger.record import CustomLogRecord
+from flexiblelog.record import CustomLogRecord
 
 # Инициализация colorama
 init(autoreset=True)
 
 
-class Formatter(logging.Formatter):
+class ColourFormatter(logging.Formatter):
     COLORS = {
         logging.DEBUG: Fore.GREEN,
         logging.INFO: Fore.LIGHTGREEN_EX,

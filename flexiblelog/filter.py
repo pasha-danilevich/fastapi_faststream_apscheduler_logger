@@ -1,15 +1,13 @@
 import inspect
 import logging
 from pathlib import Path
-from typing import Union
 
-from logger import BASE_PATH, PACKAGES_LIST
-from logger.exceptions import PackageNotFound
+from flexiblelog.exceptions import PackageNotFound
 
-from logger.record import CustomLogRecord
-from settings import FilterType
+from flexiblelog.record import CustomLogRecord
+from flexiblelog.schemas import FilterType
 
-
+# TODO вынести данный класс в formatter
 class FuncArgsFilter(logging.Filter):
     def filter(self, record: CustomLogRecord) -> bool:
         # Получаем текущий фрейм (стек вызовов)
@@ -34,10 +32,11 @@ class FuncArgsFilter(logging.Filter):
 
 class FilterPackages(logging.Filter):
 
-    def __init__(self, packages, filter_type: FilterType, *args, **kwargs):
+    def __init__(self, packages, filter_type: FilterType, base_path: Path, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self._check_exists_path()
+        self.base_path = base_path
 
+        self._check_exists_path(packages)
         self.packages = packages if filter_type.value == "WITHOUT" else self._remove_substrings(packages)
 
 
@@ -47,8 +46,8 @@ class FilterPackages(logging.Filter):
             return True
 
         absolute_path = Path(record.pathname)
-        relative_path = str(absolute_path.relative_to(BASE_PATH))
-
+        relative_path = str(absolute_path.relative_to(self.base_path))
+        # TODO избавиться от вложенности
         if self._has_package(relative_path):
             if self.packages:
                 for package in self.packages:
@@ -72,11 +71,11 @@ class FilterPackages(logging.Filter):
         """Проверяем, содержит ли путь хотя бы один пакет (например, есть ли в пути '/')"""
         return '/' in relative_path
 
-    @staticmethod
-    def _check_exists_path():
 
-        for package_name in PACKAGES_LIST:
-            abs_path = Path(BASE_PATH) / package_name.replace(".", "/")
+    def _check_exists_path(self, raw_packages):
+
+        for package_name in raw_packages:
+            abs_path = Path(self.base_path) / package_name.replace(".", "/")
             if package_name == 'root':
                 continue
             if not abs_path.exists():

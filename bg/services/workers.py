@@ -1,5 +1,5 @@
 from logger import logger
-from schemas import BgTask, BgTasks
+from schemas import BgTasks
 
 
 def some_w(w = None):
