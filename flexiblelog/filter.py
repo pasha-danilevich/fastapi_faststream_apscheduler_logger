@@ -7,6 +7,7 @@ from flexiblelog.exceptions import PackageNotFound
 from flexiblelog.record import CustomLogRecord
 from flexiblelog.schemas import FilterType
 
+
 # TODO вынести данный класс в formatter
 class FuncArgsFilter(logging.Filter):
     def filter(self, record: CustomLogRecord) -> bool:
@@ -32,66 +33,44 @@ class FuncArgsFilter(logging.Filter):
 
 class FilterPackages(logging.Filter):
 
-    def __init__(self, packages, filter_type: FilterType, base_path: Path, *args, **kwargs):
+    def __init__(self, user_packages, packages, filter_type: FilterType, base_path: Path, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.base_path = base_path
-
-        self._check_exists_path(packages)
-        self.packages = packages if filter_type.value == "WITHOUT" else self._remove_substrings(packages)
-
+        self.is_can_log = True if filter_type == FilterType.ONLY else False
+        self.packages = packages
 
     def filter(self, record: CustomLogRecord) -> bool:
         # Если пакеты для фильтрации не заданы, пропускаем все записи
         if not self.packages:
             return True
 
+
         absolute_path = Path(record.pathname)
         relative_path = str(absolute_path.relative_to(self.base_path))
-        # TODO избавиться от вложенности
-        if self._has_package(relative_path):
-            if self.packages:
-                for package in self.packages:
-                    if relative_path.startswith(package.replace('.', '/')):
-                        return True
-                    else:
-                        continue
 
-                else:
-                    return False
-            return True
+        if not self._is_package(relative_path):
+            if 'root' in self.packages:
+                return self.is_can_log
 
-        elif 'root' in self.packages or not self.packages:
-            return True
 
-        return False
+        for package in self.packages:
+
+            if relative_path.startswith(package):
+                return self.is_can_log
+            else:
+                continue
+        else:
+            return not self.is_can_log
+
 
 
     @staticmethod
-    def _has_package(relative_path: str) -> bool:
+    def _is_package(relative_path: str) -> bool:
         """Проверяем, содержит ли путь хотя бы один пакет (например, есть ли в пути '/')"""
         return '/' in relative_path
 
 
-    def _check_exists_path(self, raw_packages):
 
-        for package_name in raw_packages:
-            abs_path = Path(self.base_path) / package_name.replace(".", "/")
-            if package_name == 'root':
-                continue
-            if not abs_path.exists():
-                raise PackageNotFound(package_name=package_name)
-
-    @classmethod
-    def _remove_substrings(cls, set_: set[str]) -> set[str]:
-        """Удалить из множества строк те элементы, которые являются 'подстроками' других элементов."""
-        result = set(set_)  # Создаем копию множества для безопасного удаления
-
-        for x in set_:
-            for j in set_:
-                if x != j and j.startswith(x) and (len(j) > len(x) and j[len(x)] == '.'):
-                    result.discard(j)  # Удаляем элемент j, если он является подстрокой x
-
-        return result
 
 
 class FilterModules(logging.Filter):

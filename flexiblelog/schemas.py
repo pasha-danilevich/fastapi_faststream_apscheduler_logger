@@ -1,8 +1,9 @@
 # flexiblelog/schemas.py
 from enum import Enum
 from typing import Literal
+from fastapi import Header
+from pydantic import BaseModel, field_validator
 
-from pydantic import BaseModel
 
 class FilterType(str, Enum):
     ONLY: str = "ONLY"

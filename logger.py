@@ -15,3 +15,6 @@ logger_settings = LoggerSettings(
 
 
 logger = create_logger(base_path=BASE_PATH, settings=logger_settings)
+
+# s_logger = logging.getLogger("flexiblelog")
+# a = s_logger.findCaller(True, 1)
