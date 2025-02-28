@@ -57,7 +57,7 @@ class LoggerBuilder:
         # Добавляем фильтры
         console_handler.addFilter(
             FilterPackages(
-                self.packages_list, self.packages_list, self.packages_filter_type, self.base_path
+                self.packages_list, self.packages_filter_type, self.base_path
             )
         )
         console_handler.addFilter(FilterModules())
