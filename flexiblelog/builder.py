@@ -11,20 +11,6 @@ from flexiblelog.filter import FilterPackages, FilterModules
 from flexiblelog.formatter import ColourFormatter
 
 
-# from flexiblelog.utils import clear_empty_item
-
-
-# ссылка 1
-# def get_sql_file(file_name=None):
-#     path = os.path.dirname(__file__)
-#     result = [
-#         os.path.join(root, f)
-#         for root, dirs, filenames in os.walk(path)
-#         for f in filenames
-#         if os.path.basename(f) == file_name
-#     ]
-#     return result[0]
-
 
 class LoggerBuilder:
     def __init__(
@@ -42,7 +28,6 @@ class LoggerBuilder:
         self.packages_list_obj = PackageList(base_path, self.stt.PACKAGES)
         self.packages_list = self.packages_list_obj.packages
 
-        # ссылка 1 для модулей
         self.modules_filter_type = self.stt.MODULES_FILTER_TYPE
         self.modules_list: Set[str] = set(
             self.stt.MODULES.split(', ')
@@ -61,9 +46,13 @@ class LoggerBuilder:
             )
         )
         console_handler.addFilter(FilterModules())
+        fmt = self.formatter_class()
+
+        if isinstance(fmt, ColourFormatter):
+            fmt = ColourFormatter(use_pid=self.stt.USE_PID)
 
         # Настраиваем форматтер
-        console_handler.setFormatter(self.formatter_class())
+        console_handler.setFormatter(fmt)
 
         # Создаем логгер и настраиваем его
         logger = logging.getLogger(self.stt.LOGGER_NAME)

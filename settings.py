@@ -45,6 +45,7 @@ class Log(Base):
 
     LOG_MODULES_FILTER_TYPE: str = "ONLY"
     LOG_MODULES: str = ''
+    LOG_USE_PID: bool = False
 
 
 

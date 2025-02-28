@@ -1,5 +1,3 @@
-import logging
-
 from flexiblelog import LoggerSettings, create_logger
 from settings import settings, BASE_PATH
 
@@ -11,11 +9,8 @@ logger_settings = LoggerSettings(
     PACKAGES=settings.LOG_PACKAGES,
     MODULES_FILTER_TYPE=settings.LOG_MODULES_FILTER_TYPE,
     MODULES=settings.LOG_MODULES,
+    USE_PID=settings.LOG_USE_PID,
 )
 
 
 logger = create_logger(base_path=BASE_PATH, settings=logger_settings)
-logger.info('f', extra={'user_id': 234234})
-logger.log(level=logging.INFO, msg='!!!!!!!!!!!')
-# s_logger = logging.getLogger("flexiblelog")
-# a = s_logger.findCaller(True, 1)

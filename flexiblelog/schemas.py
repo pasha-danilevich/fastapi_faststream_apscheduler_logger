@@ -21,3 +21,5 @@ class LoggerSettings(BaseModel):
 
     MODULES_FILTER_TYPE: Literal[FilterType.ONLY, FilterType.WITHOUT] = "ONLY"
     MODULES: str = ''
+
+    USE_PID: bool = False

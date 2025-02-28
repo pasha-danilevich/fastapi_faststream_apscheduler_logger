@@ -62,6 +62,13 @@ https://docs.python.org/3/library/logging.html#logging-levels
 
 ---
 
+#### USE_PID
+Отображение Process ID и Process Name
+- `True`
+- `False` - по умолчанию
+
+---
+
 #### PACKAGES & MODULES
 Список пакетов/модулей python.
 

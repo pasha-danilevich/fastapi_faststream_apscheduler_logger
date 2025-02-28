@@ -17,8 +17,9 @@ class ColourFormatter(logging.Formatter):
         logging.CRITICAL: Fore.RED + Style.BRIGHT,
     }
 
-    def __init__(self, datefmt=None):
+    def __init__(self, use_pid: bool = False, datefmt=None):
         super().__init__(datefmt=datefmt)
+        self.use_pid = use_pid
 
     def format(self, record: logging.LogRecord) -> str:
         """
@@ -29,6 +30,7 @@ class ColourFormatter(logging.Formatter):
         path_link = f"{record.pathname}:{record.lineno}"
         args = self._get_args(record)
         where = f"{Fore.LIGHTBLACK_EX}in {record.module}{Fore.LIGHTBLACK_EX}.py > {record.funcName}({args})"
+        pid = f"{record.processName} - {record.process} | " if self.use_pid else ''
 
         # Окрашиваем levelname и msg
         if record.levelno in self.COLORS:
@@ -38,7 +40,7 @@ class ColourFormatter(logging.Formatter):
         # Формируем основное сообщение
         log_message = (
             f"{path_link} {where} - {asctime}\n"
-            f"{record.levelname} {record.msg}"
+            f"{pid}{record.levelname} {record.msg}"
         )
 
         # Добавляем traceback, если есть exc_info
