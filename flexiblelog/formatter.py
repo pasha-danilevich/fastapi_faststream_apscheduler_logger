@@ -1,7 +1,8 @@
 import logging
-from colorama import Fore, Style, init
+import inspect
+from typing import Any
 
-from flexiblelog.record import CustomLogRecord
+from colorama import init, Fore, Style
 
 # Инициализация colorama
 init(autoreset=True)
@@ -16,37 +17,98 @@ class ColourFormatter(logging.Formatter):
         logging.CRITICAL: Fore.RED + Style.BRIGHT,
     }
 
-    @staticmethod
-    def give_spase(text: str, spase: int):
-        text_len = len(text)
-        if text_len > spase:
-            return text
-        else:
-            count_to_add_space = spase - text_len
-            return text + ":" + " " * count_to_add_space
+    def __init__(self, datefmt=None):
+        super().__init__(datefmt=datefmt)
 
-    def format(self, record: CustomLogRecord):
+    def format(self, record: logging.LogRecord) -> str:
+        """
+        Форматирует лог-запись с использованием цветов.
+        """
+
         asctime = self.formatTime(record, self.datefmt)
         path_link = f"{record.pathname}:{record.lineno}"
-        args = ', '.join(f'{key}: {value}' for key, value in record.func_args.items())
+        args = self._get_args(record)
         where = f"{Fore.LIGHTBLACK_EX}in {record.module}{Fore.LIGHTBLACK_EX}.py > {record.funcName}({args})"
 
         # Окрашиваем levelname и msg
         if record.levelno in self.COLORS:
-            record.levelname = (
-                f"{self.COLORS[record.levelno]}{self.give_spase(record.levelname, 8)}"
-            )
-            record.msg = f"{self.COLORS[record.levelno]}{record.msg}{Style.RESET_ALL}"
+            record.levelname = self._colorize_level(record.levelname, record.levelno)
+            record.msg = self._colorize_message(record.msg, record.levelno)
 
         # Формируем основное сообщение
         log_message = (
-            f"{path_link} {where} - {asctime}\n" f"{record.levelname} {record.msg}"
+            f"{path_link} {where} - {asctime}\n"
+            f"{record.levelname} {record.msg}"
         )
 
         # Добавляем traceback, если есть exc_info
         if record.exc_info:
-            # Форматируем traceback и окрашиваем его в красный цвет
-            exc_text = self.formatException(record.exc_info)
-            log_message += f"\n{Fore.RED}{exc_text}{Style.RESET_ALL}"
+            log_message += self._format_exception(record.exc_info)
 
         return log_message
+
+    def _colorize_level(self, levelname: str, levelno: int) -> str:
+        """
+        Окрашивает уровень логирования.
+        """
+        color = self.COLORS.get(levelno, "")
+        return f"{color}{self._give_space(levelname, 8)}"
+
+    def _colorize_message(self, message: str, levelno: int) -> str:
+        """
+        Окрашивает сообщение лога.
+        """
+        color = self.COLORS.get(levelno, "")
+        return f"{color}{message}{Style.RESET_ALL}"
+
+    def _format_exception(self, exc_info) -> str:
+        """
+        Форматирует и окрашивает traceback.
+        """
+        exc_text = self.formatException(exc_info)
+        return f"\n{Fore.RED}{exc_text}{Style.RESET_ALL}"
+
+    def _get_args(self, record: logging.LogRecord) -> str:
+        """
+        Получает аргументы функции, которая вызвала логгер.
+        """
+        frame = inspect.currentframe()
+        try:
+            while frame:
+                if frame.f_code.co_name == record.funcName:
+                    args, _, _, values = inspect.getargvalues(frame)
+                    if args:
+                        args = {arg: values[arg] for arg in args}
+
+                        full_args_length = getattr(record, "full_args_length", False)
+
+                        # Форматируем аргументы с использованием генератора
+                        formatted_args = (
+                            f"{key}: {value}" if full_args_length else f"{key}: {self.truncate(value)}"
+                            for key, value in args.items()
+                        )
+
+                        # Объединяем результаты в строку
+                        return ', '.join(formatted_args)
+                    return ''  # чтобы не возвращать None
+                frame = frame.f_back
+        finally:
+            del frame
+
+    @staticmethod
+    def truncate(obj: Any) -> str:
+        """Принимает результат метода repr"""
+        text_repr = repr(obj)
+        if len(text_repr) < 70:
+            return f"{text_repr}"
+        return f"{text_repr[:20].strip()} ... {text_repr[-10:]}"
+
+    @staticmethod
+    def _give_space(text: str, space: int) -> str:
+        """
+        Добавляет пробелы к тексту, чтобы выровнять его.
+        """
+        text_len = len(text)
+        if text_len > space:
+            return text
+        return text + ":" + " " * (space - text_len)

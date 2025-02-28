@@ -2,7 +2,7 @@
 
 ### Данный пакет предоставляет гибкую, настраиваемую, систему логгирования и легкую интеграции в проект 
  
-
+## Get started
 ```python
    # Import `LoggerSettings` and `create_logger`:
    from logger import create_logger
@@ -111,6 +111,39 @@ PACKAGES='api.v2, bg, service, api, api.service, bg.routers, api.service.v1'
 в PACKAGES
 ```python
 PACKAGES='root'
+```
+
+## Форматер
+
+Все сообщения выводятся в следующим формате:
+```
+{path}:{line_nubmer} in {module} > {function}({args}) - {asctime}
+{record.levelname} {record.msg}
+```
+Пример:
+```commandline
+/home/your_path/api/routers/some.py:4 in some.py > some_some(x: 10, y:12) - 2025-02-28 11:49:16,928
+DEBUG:    some_some
+```
+
+Иногда значение аргументов бывает слишком большим, для того, чтобы отображать его в консоль, поэтому они урезанны.
+Чтобы этого избежать урезания, необходимо в месте вызова логгера, передать `extra={'full_args_length': True}`
+
+Пример кода:
+```python
+from your_modul import logger # достаем объект логгер из модуля, где он был у вас объявлен
+
+def some_sql_func(sql):
+    logger.debug('Do some with sql', extra={'full_args_length': True})
+```
+Результат:
+```commandline
+/home/pavel/PycharmProjects/fastapi_faststream_apscheduler_logger/bg/services/workers.py:6 in workers.py > some_sql_func(sql: select count(*)
+    from person
+    where 1 = 1
+      and name is not null
+      and {condition};) - 2025-02-28 12:54:56,077
+DEBUG:    Do some with sql
 ```
 
 ## Ваши форматеры 

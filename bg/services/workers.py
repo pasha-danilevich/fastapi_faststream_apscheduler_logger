@@ -2,8 +2,8 @@ from logger import logger
 from schemas import BgTasks
 
 
-def some_w(w = None):
-    logger.warning('start w')
+def some_sql_func(sql):
+    logger.debug('Do some with sql', extra={'full_args_length': True})
 
 
 class BgWorker:

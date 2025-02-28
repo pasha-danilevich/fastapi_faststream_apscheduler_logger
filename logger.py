@@ -15,6 +15,7 @@ logger_settings = LoggerSettings(
 
 
 logger = create_logger(base_path=BASE_PATH, settings=logger_settings)
-
+logger.info('f', extra={'user_id': 234234})
+logger.log(level=logging.INFO, msg='!!!!!!!!!!!')
 # s_logger = logging.getLogger("flexiblelog")
 # a = s_logger.findCaller(True, 1)

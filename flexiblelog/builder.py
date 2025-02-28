@@ -7,9 +7,8 @@ from typing import Set, Type
 from flexiblelog.packages import PackageList
 from flexiblelog.schemas import LoggerSettings
 
-from flexiblelog.filter import FuncArgsFilter, FilterPackages, FilterModules
+from flexiblelog.filter import FilterPackages, FilterModules
 from flexiblelog.formatter import ColourFormatter
-from flexiblelog.record import custom_log_record_factory
 
 
 # from flexiblelog.utils import clear_empty_item
@@ -54,11 +53,8 @@ class LoggerBuilder:
         # Создаем обработчик для вывода в консоль
         console_handler = logging.StreamHandler()
 
-        # Устанавливаем фабрику для создания пользовательских записей логов
-        logging.setLogRecordFactory(custom_log_record_factory)
 
         # Добавляем фильтры
-        console_handler.addFilter(FuncArgsFilter())
         console_handler.addFilter(
             FilterPackages(
                 self.packages_list, self.packages_list, self.packages_filter_type, self.base_path

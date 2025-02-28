@@ -1,22 +1,14 @@
-from typing import Annotated, Union, Any
-from pydantic import BaseModel, field_validator
+import logging
 
-class Some:
-    @staticmethod
-    def make_str(value: Any) -> str:
-        return str(value)
+# Настройка логгера
+logger = logging.getLogger("my_logger")
+logger.setLevel(logging.DEBUG)
 
-class TgAccount(BaseModel):
-    name: str
-    id: Union[str, int]
+# Добавление обработчика
+handler = logging.StreamHandler()
+formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s - %(user_id)s")
+handler.setFormatter(formatter)
+logger.addHandler(handler)
 
-    @field_validator('id', mode='before')
-    def convert_id_to_str(cls, value: Union[str, int]) -> str:
-        return Some.make_str(value)
-
-# Пример использования
-a = TgAccount(name="<NAME>", id=123)  # Передаем число
-print(a)  # id='123'
-
-b = TgAccount(name="<NAME>", id="456")  # Передаем строку
-print(b)  # id='456'
+# Логирование с дополнительным полем
+logger.info("message")
