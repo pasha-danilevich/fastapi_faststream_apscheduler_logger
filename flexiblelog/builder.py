@@ -4,10 +4,10 @@ import logging
 from pathlib import Path
 from typing import Set, Type
 
-from flexiblelog.packages import PackageList
+from flexiblelog.filter.packages import PackageList
 from flexiblelog.schemas import LoggerSettings
 
-from flexiblelog.filter import FilterPackages, FilterModules
+from flexiblelog.filter.filter import FilterPackages, FilterModules
 from flexiblelog.formatter import LogFormatter
 
 

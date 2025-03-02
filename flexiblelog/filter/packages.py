@@ -46,11 +46,11 @@ class PackageList:
         return result
 
     def __str__(self) -> str:
-        return ', '.join(self.packages_dot)
+        return ', '.join(sorted(self.packages_dot))
 
 
 if __name__ == "__main__":
-    B = Path('/home/pavel/PycharmProjects/fastapi_faststream_apscheduler_logger')
+    B = Path('/')
     r = 'api, bg.routers'
 
     l = PackageList(B, raw_packages=r)
