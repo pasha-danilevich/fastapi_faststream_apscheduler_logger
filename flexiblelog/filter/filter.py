@@ -16,6 +16,7 @@ class FilterPackages(logging.Filter):
 
     def filter(self, record: logging.LogRecord) -> bool:
         # Если пакеты для фильтрации не заданы, пропускаем все записи
+        print(f'FilterPackages: {record.pathname}')
         if not self.packages:
             return True
 
@@ -24,7 +25,7 @@ class FilterPackages(logging.Filter):
         if not self._is_package(relative_path):
             if 'root' in self.packages:
                 return self.is_can_log
-
+        print(f'FilterPackages: {self.packages}')
 
         for package in self.packages:
 
