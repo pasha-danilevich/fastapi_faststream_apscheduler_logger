@@ -8,7 +8,7 @@ from flexiblelog.packages import PackageList
 from flexiblelog.schemas import LoggerSettings
 
 from flexiblelog.filter import FilterPackages, FilterModules
-from flexiblelog.formatter import ColourFormatter
+from flexiblelog.formatter import LogFormatter
 
 
 
@@ -17,7 +17,7 @@ class LoggerBuilder:
             self,
             base_path: Path,
             settings: LoggerSettings,
-            formatter_class: Type[logging.Formatter] = ColourFormatter,
+            formatter_class: Type[logging.Formatter] = LogFormatter,
 
     ) -> None:
         self.stt: LoggerSettings = settings
@@ -48,8 +48,8 @@ class LoggerBuilder:
         console_handler.addFilter(FilterModules())
         fmt = self.formatter_class()
 
-        if isinstance(fmt, ColourFormatter):
-            fmt = ColourFormatter(use_pid=self.stt.USE_PID)
+        if isinstance(fmt, LogFormatter):
+            fmt = LogFormatter(use_pid=self.stt.USE_PID)
 
         # Настраиваем форматтер
         console_handler.setFormatter(fmt)

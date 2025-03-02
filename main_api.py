@@ -20,7 +20,7 @@ def main():
     some_sql_func(sql)
     some_routers()
     some_api()
-    some_some()
+    some_some(11, 12)
 
     # run_api()
 

@@ -1,14 +1,9 @@
 import logging
-import inspect
 from typing import Any
+import inspect
+from colorama import Fore, Style
 
-from colorama import init, Fore, Style
-
-# Инициализация colorama
-init(autoreset=True)
-
-
-class ColourFormatter(logging.Formatter):
+class Color:
     COLORS = {
         logging.DEBUG: Fore.GREEN,
         logging.INFO: Fore.LIGHTGREEN_EX,
@@ -17,15 +12,39 @@ class ColourFormatter(logging.Formatter):
         logging.CRITICAL: Fore.RED + Style.BRIGHT,
     }
 
+    @classmethod
+    def colorize_level(cls, levelname: str, levelno: int) -> str:
+        """
+        Окрашивает уровень логирования.
+        """
+        color = cls.COLORS.get(levelno, "")
+        return f"{color}{levelname}{Style.RESET_ALL}"
+
+    @classmethod
+    def colorize_message(cls, message: str, levelno: int) -> str:
+        """
+        Окрашивает сообщение лога.
+        """
+        color = cls.COLORS.get(levelno, "")
+        return f"{color}{message}{Style.RESET_ALL}"
+
+    @classmethod
+    def format_exception(cls, exc_info) -> str:
+        """
+        Форматирует и окрашивает traceback.
+        """
+        exc_text = logging.Formatter().formatException(exc_info)
+        return f"\n{Fore.RED}{exc_text}{Style.RESET_ALL}"
+
+class LogFormatter(logging.Formatter):
     def __init__(self, use_pid: bool = False, datefmt=None):
         super().__init__(datefmt=datefmt)
         self.use_pid = use_pid
 
     def format(self, record: logging.LogRecord) -> str:
         """
-        Форматирует лог-запись с использованием цветов.
+        Форматирует лог-запись.
         """
-
         asctime = self.formatTime(record, self.datefmt)
         path_link = f"{record.pathname}:{record.lineno}"
         args = self._get_args(record)
@@ -33,48 +52,28 @@ class ColourFormatter(logging.Formatter):
         pid = f"{record.processName} - {record.process} | " if self.use_pid else ''
 
         # Окрашиваем levelname и msg
-        if record.levelno in self.COLORS:
-            record.levelname = self._colorize_level(record.levelname, record.levelno)
-            record.msg = self._colorize_message(record.msg, record.levelno)
+        level_name = Color.colorize_level(self._give_space(record.levelname, 8), record.levelno)
+        record.msg = Color.colorize_message(record.msg, record.levelno)
 
         # Формируем основное сообщение
         log_message = (
             f"{path_link} {where} - {asctime}\n"
-            f"{pid}{record.levelname} {record.msg}"
+            f"{pid}{level_name} {record.msg}"
         )
 
         # Добавляем traceback, если есть exc_info
         if record.exc_info:
-            log_message += self._format_exception(record.exc_info)
+            exc_text = logging.Formatter().formatException(record.exc_info)
+            log_message += Color.format_exception(exc_text)
 
         return log_message
-
-    def _colorize_level(self, levelname: str, levelno: int) -> str:
-        """
-        Окрашивает уровень логирования.
-        """
-        color = self.COLORS.get(levelno, "")
-        return f"{color}{self._give_space(levelname, 8)}"
-
-    def _colorize_message(self, message: str, levelno: int) -> str:
-        """
-        Окрашивает сообщение лога.
-        """
-        color = self.COLORS.get(levelno, "")
-        return f"{color}{message}{Style.RESET_ALL}"
-
-    def _format_exception(self, exc_info) -> str:
-        """
-        Форматирует и окрашивает traceback.
-        """
-        exc_text = self.formatException(exc_info)
-        return f"\n{Fore.RED}{exc_text}{Style.RESET_ALL}"
 
     def _get_args(self, record: logging.LogRecord) -> str:
         """
         Получает аргументы функции, которая вызвала логгер.
         """
         frame = inspect.currentframe()
+        result_args = ''
         try:
             while frame:
                 if frame.f_code.co_name == record.funcName:
@@ -91,11 +90,12 @@ class ColourFormatter(logging.Formatter):
                         )
 
                         # Объединяем результаты в строку
-                        return ', '.join(formatted_args)
+                        result_args = ', '.join(formatted_args)
                     return ''  # чтобы не возвращать None
                 frame = frame.f_back
         finally:
             del frame
+            return result_args
 
     @staticmethod
     def truncate(obj: Any) -> str:

@@ -4,14 +4,14 @@ from pathlib import Path
 from typing import Type
 
 from flexiblelog.builder import LoggerBuilder
-from flexiblelog.formatter import ColourFormatter
+from flexiblelog.formatter import LogFormatter
 from flexiblelog.schemas import LoggerSettings
 
 # Фабричная функция для создания логгера
 def create_logger(
         base_path: Path,
         settings: LoggerSettings,
-        formatter_class: Type[Formatter] = ColourFormatter,
+        formatter_class: Type[Formatter] = LogFormatter,
 ):
     logger_builder = LoggerBuilder(
         base_path=base_path,
