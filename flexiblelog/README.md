@@ -69,57 +69,144 @@ https://docs.python.org/3/library/logging.html#logging-levels
 
 ---
 
+### Инструкция для работы с пакетами и модулями
+
 #### PACKAGES & MODULES
-Список пакетов/модулей python.
+Список пакетов и модулей Python, которые будут включены или исключены из логгирования.
 
-1. Список пакетов и модулей перечислить через запятую с пробелом.
+---
+
+### 1. **Список пакетов и модулей**
+Перечислите пакеты и модули через запятую с пробелом.  
+- Для пакетов используйте имена без `.py`.  
+- Для модулей укажите имя файла с расширением `.py`.
+
 ```python
-PACKAGES/MODULES='name, name, name'
+PACKAGES = 'api, models, utils'
+MODULES = 'main.py, app.py, config.py'
 ```
 
-2. Включены все, если ничего не передавать. 
+---
+
+### 2. **Включение всех пакетов и модулей**
+Если не передавать значения для `PACKAGES` или `MODULES`, будут включены все пакеты и модули, независимо от правил (`PACKAGES_RULE` или `MODULES_RULE`).
+
 ```python
-PACKAGES/MODULES='' 
-# в не зависимости от PACKAGES/MODULES_RULE
+PACKAGES = ''  # Все пакеты включены
+MODULES = ''   # Все модули включены
 ```
 
-3. Если необходимо включить/исключить вложенный пакет,
-необходимо прописать через точку родительские пакеты.
+---
 
+### 3. **Вложенные пакеты и модули**
+Если нужно включить или исключить вложенные пакеты или модули, укажите полный путь через точку.
+
+#### Для пакетов:
 ```python
-PACKAGES='name, name.in_some, name.in_some.some_some'
+PACKAGES = 'api.v1, api.v2.models, utils.helpers'
 ```
 
+#### Для модулей:
+Укажите имя файла с расширением `.py`. Если есть несколько модулей с одинаковым именем, укажите путь к нужному.
 
-4. Logger сперва включает пакеты/модули затем исключает
 ```python
-PACKAGES_RULE='ONLY'
-PACKAGES='api, models, test'
-
-MODULES_RULE='WITHOUT'
-MODULES='test_file.py'
-
-# Итог: логгированию подлежат пакеты: api, models и все модули в пакете test кроме test_file.py
+MODULES = 'api.v1.app.py, service.app.py'
 ```
 
+Пример структуры проекта:
+```commandline
+.
+├── api
+│   └── app.py
+├── service
+│   └── app.py  # target
+```
 
-5. Более высокая иерархия пакетов перекроет низшую во время включения.
 ```python
-PACKAGES_RULE='ONLY'
-PACKAGES='api.v2, bg, service, api, api.service, bg.routers, api.service.v1'
+MODULES = 'service.app.py'  # Будет включен только service/app.py
+```
+
+---
+
+### 4. **Правила включения/исключения**
+Логгер сначала применяет правила для пакетов, затем для модулей.
+
+- `PACKAGES_RULE` и `MODULES_RULE` могут принимать значения:
+  - `ONLY` — включить только указанные пакеты/модули.
+  - `WITHOUT` — исключить указанные пакеты/модули.
+
+Пример:
+```python
+PACKAGES_RULE = 'ONLY'
+PACKAGES = 'api, models, test'
+
+MODULES_RULE = 'WITHOUT'
+MODULES = 'test_file.py'
+
+# Итог: логгированию подлежат пакеты api, models и все модули в пакете test, кроме test_file.py
+```
+
+---
+
+### 5. **Иерархия пакетов**
+Если указаны пакеты с разной глубиной вложенности, более высокая иерархия перекроет низшую.
+
+Пример:
+```python
+PACKAGES_RULE = 'ONLY'
+PACKAGES = 'api.v2, bg, service, api, api.service, bg.routers, api.service.v1'
 
 # Итог: логгированию подлежат пакеты (bg, service, api)
 ```
 
+---
 
+### 6. **Модули в корне проекта**
+Если нужно включить или исключить модули, находящиеся в корне проекта (не в пакетах), добавьте `root` в `PACKAGES`.
 
-6. Если хотите включить/исключить все модули, находящиеся в корне проекта
-(модули, не находящиеся в каком-либо пакете), добавьте "root"
-в PACKAGES
+Пример:
 ```python
-PACKAGES='root'
+PACKAGES = 'root, api'
 ```
 
+---
+
+### Примеры использования
+
+#### Пример 1: Логгирование только для пакетов `api` и `models`, исключая модуль `test_file.py`
+```python
+PACKAGES_RULE = 'ONLY'
+PACKAGES = 'api, models'
+
+MODULES_RULE = 'WITHOUT'
+MODULES = 'test_file.py'
+```
+
+#### Пример 2: Логгирование всех пакетов, кроме `utils`, и всех модулей, кроме `config.py`
+```python
+PACKAGES_RULE = 'WITHOUT'
+PACKAGES = 'utils'
+
+MODULES_RULE = 'WITHOUT'
+MODULES = 'config.py'
+```
+
+#### Пример 3: Логгирование только модулей в корне проекта и пакета `api`
+```python
+PACKAGES_RULE = 'ONLY'
+PACKAGES = 'root, api'
+
+MODULES_RULE = ''
+MODULES = ''
+```
+
+---
+
+### Итог
+- Используйте `PACKAGES` и `MODULES` для указания пакетов и модулей.
+- Используйте `PACKAGES_RULE` и `MODULES_RULE` для управления включением/исключением.
+- Учитывайте иерархию пакетов и указывайте полные пути для вложенных элементов.
+- Для работы с модулями в корне проекта используйте `root`.
 ## Форматер
 
 Все сообщения выводятся в следующим формате:
@@ -186,3 +273,5 @@ logger = create_logger(
     formatter_class=MyFormatter, # передайте свой форматер 
 )
 ```
+
+
