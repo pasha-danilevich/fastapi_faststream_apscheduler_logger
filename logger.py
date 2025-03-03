@@ -14,3 +14,7 @@ logger_settings = LoggerSettings(
 
 
 logger = create_logger(base_path=BASE_PATH, settings=logger_settings)
+
+# Использует логгер
+logger.info("Logger is ready!")
+

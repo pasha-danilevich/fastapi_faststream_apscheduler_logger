@@ -13,9 +13,9 @@ class TestPackageListInitialization(BaseTest):
     def test_package_list_initialization_and_validation(self, temp_project):
         """Тестирует инициализацию и валидацию PackageList."""
         # Корректные пакеты
-        package_list = PackageList(temp_project, "api, models, api.api, test, models.a.b.c, services.main", )
-        assert package_list.packages_dot == {'models', 'test', 'api', 'services.main'}
-        assert package_list.packages == {'models', 'test', 'api', 'services/main'}
+        package_list = PackageList(temp_project, "api, api.routers, bg.routers", )
+        assert package_list.packages_dot == {'api', 'bg.routers'}
+        assert package_list.packages == {'api', 'bg/routers'}
 
         # Некорректный пакет
         with pytest.raises(PackageNotFound):
@@ -42,8 +42,8 @@ class TestPackageListInitialization(BaseTest):
 
     # Тестирование строкового представления
     def test_str_representation(self, temp_project):
-        package_list = PackageList(temp_project, "api, models, services.main")
-        assert str(package_list) == "api, models, services.main"
+        package_list = PackageList(temp_project, "api, api.routers, bg.routers")
+        assert str(package_list) == "api, bg.routers"
 
         package_list = PackageList(temp_project, "")
         assert str(package_list) == ""
@@ -59,16 +59,16 @@ class TestPackageListInitialization(BaseTest):
 
     # Тестирование с вложенными пакетами
     def test_nested_packages(self, temp_project):
-        package_list = PackageList(temp_project, "api.v1, api.v2")
-        assert package_list.packages_dot == {"api.v1", "api.v2"}
-        assert package_list.packages == {"api/v1", "api/v2"}
+        package_list = PackageList(temp_project, "bg.routers, bg.services")
+        assert package_list.packages_dot == {"bg.routers", "bg.services"}
+        assert package_list.packages == {"bg/routers", "bg/services"}
 
-        package_list = PackageList(temp_project, "api.v1, api.v2, api")
-        assert package_list.packages_dot == {"api"}
-        assert package_list.packages == {"api"}
+        package_list = PackageList(temp_project, "bg.routers, bg.services, bg")
+        assert package_list.packages_dot == {"bg"}
+        assert package_list.packages == {"bg"}
 
     # Тестирование с дублирующимися пакетами
     def test_duplicate_packages(self, temp_project):
-        package_list = PackageList(temp_project, "api, api, models")
-        assert package_list.packages_dot == {"api", "models"}
-        assert package_list.packages == {"api", "models"}
+        package_list = PackageList(temp_project, "api, api, bg")
+        assert package_list.packages_dot == {"api", "bg"}
+        assert package_list.packages == {"api", "bg"}

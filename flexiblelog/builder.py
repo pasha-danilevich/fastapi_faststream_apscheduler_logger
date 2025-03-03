@@ -4,6 +4,7 @@ import logging
 from pathlib import Path
 from typing import Set, Type
 
+from flexiblelog.filter.moduls import ModulsList
 from flexiblelog.filter.packages import PackageList
 from flexiblelog.schemas import LoggerSettings
 
@@ -29,15 +30,13 @@ class LoggerBuilder:
         self.packages_list = self.packages_list_obj.packages
 
         self.modules_filter_type = self.stt.MODULES_FILTER_TYPE
-        self.modules_list: Set[str] = set(
-            self.stt.MODULES.split(', ')
-        )
+        self.module_list_obj = ModulsList(base_path, self.stt.MODULES)
+        self.modules_list = self.module_list_obj.moduls
 
     def build(self) -> logging.Logger:
         """Создает и настраивает логгер."""
         # Создаем обработчик для вывода в консоль
         console_handler = logging.StreamHandler()
-
 
         # Добавляем фильтры
         console_handler.addFilter(
@@ -45,7 +44,9 @@ class LoggerBuilder:
                 self.packages_list, self.packages_filter_type, self.base_path
             )
         )
-        console_handler.addFilter(FilterModules())
+        console_handler.addFilter(FilterModules(
+            self.modules_list, self.modules_filter_type, self.base_path
+        ))
         fmt = self.formatter_class()
 
         if isinstance(fmt, LogFormatter):

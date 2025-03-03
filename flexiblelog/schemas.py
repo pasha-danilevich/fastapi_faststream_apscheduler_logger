@@ -13,7 +13,7 @@ class LoggerSettings(BaseModel):
     LOGGER_NAME: str = "promed-service"
 
     LEVEL: str = "INFO"
-
+    # TODO: rename to ENV
     MODE: Literal["DEV", "PROD"] = "DEV"
 
     PACKAGES_FILTER_TYPE: Literal[FilterType.ONLY, FilterType.WITHOUT] = "ONLY"
