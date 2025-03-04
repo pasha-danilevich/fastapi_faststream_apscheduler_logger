@@ -1,19 +1,27 @@
 from pathlib import Path
 
-from flexiblelog.exceptions import PackageNotFound
+from flexiblelog.exceptions import NotExist
 from flexiblelog.filter.base import BaseList
 
 
 class PackageList(BaseList):
     def __init__(self, base_path: Path, raw_packages: str):
-        super().__init__(base_path, raw_packages)
-
-        self.packages_dot = self._remove_substrings(self._items_dot)
+        self.packages_dot = self._remove_substrings(self._clear_empty_item(set(raw_packages.split(', '))))
         self.packages = self._to_path(self.packages_dot)
-        self._validate()
 
-    def _validate(self, exception_class=PackageNotFound):
-        super()._validate(exception_class)
+        self._validate_existing(base_path, self.packages)
+
+    @staticmethod
+    def _validate_existing(base_path, seq):
+        for item_path_name in seq:
+            if item_path_name == 'root':
+                continue
+            abs_path = Path(base_path / item_path_name)
+
+            if not abs_path.exists():
+                raise NotExist(item_path_name)
+
+
 
     @staticmethod
     def _to_path(packages: set[str]) -> set[str]:
@@ -33,7 +41,7 @@ class PackageList(BaseList):
         return result
 
     def __str__(self) -> str:
-        return ', '.join(sorted(self.packages_dot))
+        return self.view_items(self.packages_dot)
 
 
 

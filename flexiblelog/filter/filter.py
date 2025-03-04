@@ -1,5 +1,6 @@
 import logging
 from pathlib import Path
+from sys import modules
 
 from flexiblelog.schemas import FilterType
 
@@ -59,14 +60,16 @@ class FilterModules(logging.Filter):
     def filter(self, record: logging.LogRecord) -> bool:
 
         if not self.modules:
-            print(f'skip all modules')
             return True
 
         relative_path = self.get_relative_path(record)
 
         for modul in self.modules:
 
-            if relative_path.endswith(modul):
+            len_ = len(modul.split('/'))
+            arr_path = relative_path.split('/')[-len_:]
+
+            if '/'.join(arr_path) == modul:
                 return self.is_can_log
             else:
                 continue

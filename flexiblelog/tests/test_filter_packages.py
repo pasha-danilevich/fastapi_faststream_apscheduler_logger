@@ -1,8 +1,9 @@
 import pytest
 
 from base_test import BaseTest
+from flexiblelog.exceptions import NotExist
 from flexiblelog.filter.packages import PackageList
-from flexiblelog.exceptions import PackageNotFound
+
 
 
 
@@ -18,7 +19,7 @@ class TestPackageListInitialization(BaseTest):
         assert package_list.packages == {'api', 'bg/routers'}
 
         # Некорректный пакет
-        with pytest.raises(PackageNotFound):
+        with pytest.raises(NotExist):
             PackageList(temp_project, "invalid_package")
 
     # Тестирование метода _clear_empty_item
@@ -54,8 +55,6 @@ class TestPackageListInitialization(BaseTest):
         assert package_list.packages_dot == {"root"}
         assert package_list.packages == {"root"}
 
-        # Проверка, что валидация не выбрасывает исключение для 'root'
-        package_list._validate()
 
     # Тестирование с вложенными пакетами
     def test_nested_packages(self, temp_project):

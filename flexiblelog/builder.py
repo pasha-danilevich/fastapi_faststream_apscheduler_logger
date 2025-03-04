@@ -77,7 +77,7 @@ class LoggerBuilder:
                 + (
                         f"Modules: "
                         + (
-                            f'{self.modules_filter_type.value}: {self.stt.MODULES.split(", ")}'
+                            f'{self.modules_filter_type.value}: {self.module_list_obj}'
                             if self.modules_list
                             else "ALL"
                         )

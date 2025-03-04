@@ -78,6 +78,9 @@ class TestFilterModules(BaseTest):
             mock_record.pathname = str(temp_project / "utils.py")
             assert logger.filter(mock_record) is False, "Лог из utils.py должен быть заблокирован"
 
+            mock_record.pathname = str(temp_project / "main_api.py")
+            assert logger.filter(mock_record) is False, "Лог из main_api.py должен быть заблокирован"
+
     def test_filter_modules_only_mode_3(self, temp_project):
         """
         Тестирует фильтр в режиме ONLY (логируются только указанные модули).
@@ -87,7 +90,7 @@ class TestFilterModules(BaseTest):
         logger.setLevel(logging.DEBUG)
 
         # Создаем фильтр
-        modules = "pi.py"
+        modules = "settings.py"
 
         modules_obj = ModulsList(temp_project, modules)
         filter_modules = FilterModules(modules_obj.moduls, FilterType.ONLY, temp_project)
@@ -97,11 +100,11 @@ class TestFilterModules(BaseTest):
         with patch("logging.LogRecord") as mock_record:
             # Лог из api/api.py
             mock_record.pathname = str(temp_project / "api" / "api.py")
-            assert logger.filter(mock_record) is False, "Лог из api/api.py должен быть пропущен"
+            assert logger.filter(mock_record) is False, "Лог из api/api.py должен быть заблокирован"
 
             # Лог из bg/app.py
             mock_record.pathname = str(temp_project / "bg" / "api.py")
-            assert logger.filter(mock_record) is False, "Лог из bg/app.py должен быть пропущен"
+            assert logger.filter(mock_record) is False, "Лог из bg/app.py должен быть заблокирован"
 
             # Лог из main_api.py
             mock_record.pathname = str(temp_project / "utils.py")
@@ -136,26 +139,3 @@ class TestFilterModules(BaseTest):
             mock_record.pathname = str(temp_project / "main_api.py")
             assert logger.filter(mock_record) is True, "Лог из main_api.py должен быть пропущен"
 
-    def test_filter_modules_root(self, temp_project):
-        """
-        Тестирует фильтр с включенным модулем 'root'.
-        """
-        # Настраиваем логгер
-        logger = logging.getLogger("test_filter_modules_root")
-        logger.setLevel(logging.DEBUG)
-
-
-        modules = "root"
-        modules_obj = ModulsList(temp_project, modules)
-        # filter_modules = FilterModules(modules_obj.moduls, FilterType.ONLY, temp_project)
-        # logger.addFilter(filter_modules)
-        #
-        # # Имитируем логи из разных модулей
-        # with patch("logging.LogRecord") as mock_record:
-        #     # Лог из main_api.py
-        #     mock_record.pathname = str(temp_project / "main_api.py")
-        #     assert logger.filter(mock_record) is True, "Лог из main_api.py должен быть пропущен"
-        #
-        #     # Лог из api/api.py
-        #     mock_record.pathname = str(temp_project / "api" / "api.py")
-        #     assert logger.filter(mock_record) is False, "Лог из api/api.py должен быть заблокирован"

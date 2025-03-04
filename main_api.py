@@ -1,5 +1,6 @@
 from api.api import run_api, some_api
 from api.routers.some import some_some
+from bg.api import l
 from bg.routers.bg_router import some_routers
 from bg.services.schedulers import some_service
 from bg.services.workers import some_sql_func
@@ -21,6 +22,7 @@ def main():
     some_routers()
     some_api()
     some_some(11, 12)
+    l()
 
     # run_api()
 
