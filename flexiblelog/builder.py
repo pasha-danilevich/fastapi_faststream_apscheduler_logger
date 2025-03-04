@@ -2,7 +2,7 @@
 import logging
 
 from pathlib import Path
-from typing import Set, Type
+from typing import Type
 
 from flexiblelog.filter.moduls import ModulsList
 from flexiblelog.filter.packages import PackageList

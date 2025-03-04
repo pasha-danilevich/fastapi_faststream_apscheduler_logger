@@ -1,12 +1,4 @@
-from pathlib import Path
-from typing import Type
-
-from flexiblelog.exceptions import NotExist
-
-
 class BaseList:
-
-
 
     @staticmethod
     def _clear_empty_item(arr: set[str]) -> set[str]:
@@ -16,4 +8,3 @@ class BaseList:
     @staticmethod
     def view_items(items: set[str]) -> str:
         return ', '.join(sorted(items))
-

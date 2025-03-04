@@ -1,6 +1,5 @@
 import logging
 from pathlib import Path
-from sys import modules
 
 from flexiblelog.schemas import FilterType
 
